@@ -124,12 +124,14 @@ def find_all_ORFs_oneframe(dna):
      
 def find_all_ORFs_oneframe_unit_tests():
     """ Unit tests for the find_all_ORFs_oneframe function """
+    print 'input: ATGGAATAGATGTAG, expected output: ["ATGGAA", "ATG"], actual output:',
     print find_all_ORFs_oneframe('ATGGAATAGATGTAG')
+    print 'input: ATAGTAGATAGTAGTAGTAGATGTGCTAG, expected output: [], actual output:',
     print find_all_ORFs_oneframe('ATAGTAGATAGTAGTAGTAGATGTGCTAG')
+    print 'input: TAGTAGATGTAGATGCCCGCCATGTAG, expected output: ["ATG", "ATGCCCGCCATG"], actual output:',
     print find_all_ORFs_oneframe('TAGTAGATGTAGATGCCCGCCATGTAG')
+    print 'input: ATGCATGAATGTAGATAGATGTGCCC, expected output: ["ATGCATGAATG", "ATGTGCCC"], actual output:',
     print find_all_ORFs_oneframe('ATGCATGAATGTAGATAGATGTGCCC')
-
-#find_all_ORFs_oneframe_unit_tests()
 
 def find_all_ORFs(dna):
     """ Finds all non-nested open reading frames in the given DNA sequence in all 3
@@ -145,9 +147,12 @@ def find_all_ORFs(dna):
 
 def find_all_ORFs_unit_tests():
     """ Unit tests for the find_all_ORFs function """
+    print 'input: ATGCATGAATGTAG, expected output: ["ATGCATGAATG", "ATGAATG", "ATG"], actual output:',
     print find_all_ORFs("ATGCATGAATGTAG")
-
-#find_all_ORFs_unit_tests()
+    print 'input: ATGTAGCTGGGCTAGTTGAATGATGATGTAG, expected output: ["ATG", "ATGATGATG"], actual output:',
+    print find_all_ORFs("ATGTAGCTGGGCTAGTTGAATGATGATGTAG")
+    print 'input: ATGCATGAATGTAG, expected output: ["ATGGCCCAT", "ATGGCCATGGAT", "ATGGCCGATGGCCCAT"], actual output:',
+    print find_all_ORFs("CGATGGCCGATGGCCCATTAGATGGCCATGGATTAG")
 
 def find_all_ORFs_both_strands(dna):
     """ Finds all non-nested open reading frames in the given DNA sequence on both
@@ -160,9 +165,10 @@ def find_all_ORFs_both_strands(dna):
 
 def find_all_ORFs_both_strands_unit_tests():
     """ Unit tests for the find_all_ORFs_both_strands function """
+    print 'input: ATGCGAATGTAGCATCAAA, expected output: ["ATGCGAATG", "ATGCTACATTCGCAT"], actual output:',
     print find_all_ORFs_both_strands("ATGCGAATGTAGCATCAAA")
-
-#find_all_ORFs_both_strands_unit_tests()
+    print 'input: ATGGAATAGATGTAG, expected output: ["ATGGAA", "ATG"], actual output:',
+    print find_all_ORFs_both_strands("ATGGAATAGATGTAG")
 
 def longest_ORF(dna):
     """ Finds the longest ORF on both strands of the specified DNA and returns it
@@ -177,6 +183,9 @@ def longest_ORF(dna):
 
 def longest_ORF_unit_tests():
     """ Unit tests for the longest_ORF function """
+    print 'input: ATGGAATAGATGTAG, expected output: ATGGAA, actual output:',
+    print longest_ORF("ATGGAATAGATGTAG")
+    print 'input: ATGCGAATGTAGCATCAAA, expected output: ATGCTACATTCGCAT, actual output:',
     print longest_ORF("ATGCGAATGTAGCATCAAA")
 
 def longest_ORF_noncoding(dna, num_trials):
@@ -194,10 +203,6 @@ def longest_ORF_noncoding(dna, num_trials):
         if  len(longest_ORF(collapse(DNA))) > longest:
             longest = len(longest_ORF(collapse(DNA)))
     return longest
-
-#init = ['A', 'T', 'C', 'G', 'A', 'T', 'G', 'A', 'A', 'A', 'T', 'A', 'G']
-#random.shuffle(init)
-#print init
 
 def gene_finder(dna, threshold):
     """ Returns the amino acid sequences coded by all genes that have an ORF
@@ -217,4 +222,4 @@ def gene_finder(dna, threshold):
     return longest
 
 #print longest_ORF_noncoding(dna, 1500)
-print gene_finder(dna, 500)
+#print gene_finder(dna, 500)
