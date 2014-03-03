@@ -61,10 +61,12 @@ def cosine_measure(v1, v2):
 def compare_wiki(dic1,dic2):
     list1=[]
     list2=[]
+    
     mega2=dic2
     for word in dic1:
         if word not in dic2:
             mega2[word]=0
+    
     mega1=mega2.copy()
     for key in mega1:
         key1=key
@@ -72,10 +74,12 @@ def compare_wiki(dic1,dic2):
             mega1[key1]= dic1[key1]
         else:
             mega1[key1]=0
+    
     for key in mega1:
         list1.append(mega1[key])
     for key in mega2:
         list2.append(mega2[key])
+    
     sim=cosine_measure(list1,list2)
     return sim
 
@@ -118,27 +122,6 @@ def wikipage_unittest():
     print 'actual output:' , x
     print ""
 
-def pickling_wiki():
-    """
-    This allows us to save the data of an individual website. However, Wikipedia
-    does not have search limits like Google/Bing/Yahoo so it's not necessary. I
-    also realized that by pickling data, you must reduce the data structure from
-    Wikipedia type to a generic string. That flattening of information makes it
-    more difficult to search in one swoop.
-    """
-    w = Wikipedia()
-    
-    ireland_article = w.search('Ireland')
-    
-    ireland_links = ireland_article.links
-    
-    f = open('ireland.pickle', w)
-    
-    for items in ireland_links:
-        pickle.dump(items + '\n')
-    
-    f.close()
-
 def reverse_articles(article1, article2):
     """
     This checks if the title of an article that is linked from one wikipedia page
@@ -151,41 +134,6 @@ def reverse_articles(article1, article2):
                 if links2 == article1.title:
                     return True
     return False
-
-counter = 0
-
-def get_path(article, target_article, path):
-    """
-    Text analysis part. This might be better if further broken down.
-    
-    **NOTE: Already being further broken down**
-    
-    TODO:
-    Find the next article along the path of between 2 articles by analyzing the
-    similarity between the a hyperlinked article from one page to that page and
-    the target page.
-    """
-    global w
-    global counter
-    if counter < 5:
-        print counter
-        if reverse_articles(article, target_article.title) == 1:
-            return [article.title, target_article.title]
-        else:
-            counter = counter + 1
-            if counter == 1:
-                path.append(article.links[6]);
-                get_path(w.search(article.links[6]), target_article, path)
-            if article.links[6] == path[len(path)-1]:
-                path.append(article.links[7])
-                get_path(w.search(article.links[7]), target_article, path)
-            else:
-                path.append(article.links[6]);
-                get_path(w.search(article.links[6]), target_article, path)
-    
-    return path
-#    return 'Too long'
-#    return 'Could not find direct link'
 
 def find_next_article_forward(article, target_article):
     """
@@ -203,7 +151,7 @@ def find_next_article_forward(article, target_article):
     
     for i in range(len(text_init)-1):
         all_links.append(get_link_freq(w.search(text_init[i]).links))
-#        print i, 'of', len(text_init)
+#        print i, 'of', len(text_init)  # Displays progress of hyperlink parsing
     
     for i in range(len(text_init)-2):
         avg1 = (links_analysis(text_targ, all_links[i]) + compare_wiki(text_targ, all_links[i])) / 2.0
@@ -214,6 +162,13 @@ def find_next_article_forward(article, target_article):
     return w.search(article_name)
         
 def links_analysis(target_links, links2):
+    """
+    This analyzes the hyperlinked wikipedia articles in the target page (target_links)
+    and the links provided as a second argument. For every similar term, the raw
+    comparison value is increased by 1. This returns the raw comparison value divided
+    by the maximum number of links they could have in common (all of the links in
+    target links).
+    """
     global w
     
     num_same = 0
@@ -225,6 +180,11 @@ def links_analysis(target_links, links2):
     return num_same / float(len(target_links))
 
 def get_link_freq(links):
+    """
+    This function finds the frequency of each hyperlink (from the links argument)
+    and stores the hyperlinked article title as the key to the dictionary hyperlinks
+    and the frequency of each link as the value of each key.
+    """
     hyperlinks = {}
     
     for the_links in links:
@@ -234,13 +194,13 @@ def get_link_freq(links):
             hyperlinks[the_links] = 1
     
     return hyperlinks
-    
-def shorter_dict(dict1, dict2):
-    if (len(dict1) <= len(dict2)):
-        return [dict1, dict2]
-    return [dict2, dict1]
 
 def get_article_path(article, target_article, path):
+    """
+    Find the next article along the path of between 2 articles by analyzing the
+    similarity between the a hyperlinked article from one page to that page and
+    the target page.
+    """
     if article == target_article:
         path.append(str(article.title))
     else:
@@ -248,6 +208,8 @@ def get_article_path(article, target_article, path):
         path.append(str(article.title))
         get_article_path(next_article, target_article, path)
         return path
+
+# UNIT TESTS
     
 def reverse_articles_UT():
     philip = w.search('Philip McRae')
@@ -303,13 +265,3 @@ def get_article_path_UT():
     
 get_article_path_UT()
 find_next_article_forward_UT()
-
-#tudor = w.search('Tudor conquest of Ireland')
-#print tudor.plaintext()
-
-#plant = w.search('Plantation of Ulster')
-
-#print get_path(ireland_article, nepal_article, [])
-
-#print get_next_path(ireland_article, uk_article)
-#print get_next_path(ireland_article, nepal_article)
