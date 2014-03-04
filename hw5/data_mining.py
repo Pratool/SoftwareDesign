@@ -2,21 +2,11 @@
 """
 Created on Sun Feb 23 22:58:09 2014
 
-@author: pratool
-"""
-
-"""
-You have a certain number of clicks (say 10), to get from one Wikipedia page to
-another (from all results) from just the hyperlinks on that page within Wikipedia.
-
-OR
-
-You have to trace a path between two different Wikipedia articles.
+@author: Pratool Gadtaula and Greg Coleman
 """
 
 from pattern.web import *
 import math
-import pickle
 from collections import Counter
  
 import re
@@ -25,108 +15,80 @@ from itertools import izip
 w = Wikipedia()
 
 def wikipage(the_text):
-    reverse_text=the_text[::-1]
+    """
+    Inputs a wikipedia article as a plain text and output a stripped down
+    version of it that does not inlude the references section, small words
+    and non albphet characters. The ouput is a list with each element as an
+    indivudual word from the article.
+    """
+    reverse_text=the_text[::-1] #reveses the text so we find the very last "refences" so we can delete it
     if reverse_text.find("secnerefeR") != -1:
         reference_location=reverse_text.index("secnerefeR")
-        reverse_text=reverse_text[reference_location+10:len(reverse_text)]
+        reverse_text=reverse_text[reference_location+10:len(reverse_text)] #deletes everything after the last references
     text=reverse_text[::-1]
-    flist=re.split('\W+',text)
+    flist=re.split('\W+',text) #gets rid of all the non alphaebt or number charcters
     c=0
     l=len(flist)
-    while c<=l-1:
-        if len(flist[c])<=7: #looks for words less than 4 characters.
+    while c<=l-1: #have to have c as counter and not the initial list length becasue the list changes
+        if len(flist[c])<=7: #looks for words less than 7 characters.
             del flist[c]
-            l=l-1
+            l=l-1 # updates the new list legnth
             c = c-1
         c +=1
     for n in range(len(flist)-1):
         flist[n]=str(flist[n])
         if flist[n].find("\xe2\x80\x93") != -1:
-            del flist[n]
-             
+            del flist[n]      
     cnt = Counter()
-    for word in flist:
+    for word in flist: #converts the list into a dictionary with the values are the frequency of each word
         cnt[word] += 1
     return cnt
 
 def dot_product(v1, v2):
+    """ takes the dot prudct of two lists and results in a scalar value """
     return sum(map(lambda x: x[0] * x[1], izip(v1, v2)))
 
 def cosine_measure(v1, v2):
+    """calculates cosine similarity equaition and outputs a scalr between 0 and 1"""
     prod = dot_product(v1, v2)
     len1 = math.sqrt(dot_product(v1, v1))
     len2 = math.sqrt(dot_product(v2, v2))
     return prod / (len1 * len2)
 
 def compare_wiki(dic1,dic2):
+    """
+    In puts two dictionaies that reprsents two different wiki articles. It uses
+    the cosine similarity function to measure how similar they are and ouputs a
+    scalar number
+    """
     list1=[]
     list2=[]
-    
-    mega2=dic2
+    mega2=dic2 #mega1 and mega2 or the same template that has all the words in the same order
     for word in dic1:
         if word not in dic2:
-            mega2[word]=0
-    
+            mega2[word]=0 #creates the mega template. Add words from dic1 to dic2 if they do not exist
     mega1=mega2.copy()
     for key in mega1:
         key1=key
         if key1 in dic1:
-            mega1[key1]= dic1[key1]
+            mega1[key1]= dic1[key1] #updates mega1 template with the correct frequencies in dic1
         else:
             mega1[key1]=0
-    
+            #converts the mega dictionary into lists of the values
     for key in mega1:
         list1.append(mega1[key])
     for key in mega2:
         list2.append(mega2[key])
-    
-    sim=cosine_measure(list1,list2)
+    sim=cosine_measure(list1,list2) #fiinds how similair the two list of words are
     return sim
-
-#print compare_wiki({'blue':2, 'red':2,'purple':2, },{'purple':2,'red':2, 'blue':2})
-#us = wikipage(w.search('United States').plaintext())
-#basil = wikipage(w.search('Philip McRae').plaintext())
-#print compare_wiki(wikipage(w.search('United States').plaintext()),wikipage(w.search('List of countries by military expenditures').plaintext()))   
-#print compare_wiki(wikipage(w.search('Basil McRae').plaintext()),wikipage(w.search('Philip McRae').plaintext()))
-#print compare_wiki(basil, basil)
-
-def wikipage_unittest():
-    x=wikipage('1blue 1blue red 12345')
-    print 'input:', "('1blue 1blue red 12345')"
-    print 'expected output:', '1blue:2 12345:1'
-    print 'actual output:', x
-    print ""
-    x=wikipage('(8*1blue) 8blue vlue red')
-    print 'input:', "(8*1blue) 8blue vlue red'"
-    print 'expected output:' ,'1blue:1 8blue:1 vlue:1'
-    print 'actual output:' , x
-    print ""
-    x=wikipage('2010-2011 [born in 2008]')
-    print 'input:', '2010-2011 [born in 2008]'
-    print 'expected output:' ,'2010:1 2011:1 born:1 2008:1'
-    print 'actual output:' , x
-    print ""
-    x=wikipage('8*2/twenty')
-    print 'input:', '8*2/twenty'
-    print 'expected output:' ,'twenty:1'
-    print 'actual output:' , x
-    print ""
-    x=wikipage('[122] blue-blue*blue[blue]blue')
-    print 'input:', '[122] blue-blue*blue[blue]blue'
-    print 'expected output:' ,'blue:5'
-    print 'actual output:' , x
-    print ""
-    x=wikipage('red blue References redd References hello')
-    print 'input:', "red blue References hello"
-    print 'expected output:' ,'blue:1 References:1 redd:1'
-    print 'actual output:' , x
-    print ""
 
 def reverse_articles(article1, article2):
     """
     This checks if the title of an article that is linked from one wikipedia page
     can be accessed from that wikipedia page. This can be slow, esp. if they don't.
-    Returns 1 if the articles can link to each other. Returns 0 if they can't.
+    Returns True if the articles can link to each other. Returns False if they can't.
+    
+    *** NOTE: This function ended up in disuse due to time limitations. ***
     """
     for links1 in article1.links:
         if links1 == article2.title:
@@ -139,6 +101,7 @@ def find_next_article_forward(article, target_article):
     """
     This function finds the best article to look at after the current article
     by comparing the linked wikipedia pages of the article to the target article.
+    This function returns the wikipedia article as a Wikipedia Article object.
     """
     global w
     text_init = article.links
@@ -150,8 +113,9 @@ def find_next_article_forward(article, target_article):
             return target_article
     
     for i in range(len(text_init)-1):
+        print article.title
         all_links.append(get_link_freq(w.search(text_init[i]).links))
-#        print i, 'of', len(text_init)  # Displays progress of hyperlink parsing
+        print i, 'of', len(text_init)  # Displays progress of hyperlink parsing
     
     for i in range(len(text_init)-2):
         avg1 = (links_analysis(text_targ, all_links[i]) + compare_wiki(text_targ, all_links[i])) / 2.0
@@ -237,6 +201,44 @@ def links_analysis_UT():
     print links_analysis(ireland_article.links, nepal_article.links)
     print links_analysis(ireland_article.links, ireland_article.links)
  
+def wikipage_UT():
+    x=wikipage('1blue 1blue red 12345')
+    print 'input:', "('1blue 1blue red 12345')"
+    print 'expected output:', '1blue:2 12345:1'
+    print 'actual output:', x
+    print ""
+    x=wikipage('(8*1blue) 8blue vlue red')
+    print 'input:', "(8*1blue) 8blue vlue red'"
+    print 'expected output:' ,'1blue:1 8blue:1 vlue:1'
+    print 'actual output:' , x
+    print ""
+    x=wikipage('2010-2011 [born in 2008]')
+    print 'input:', '2010-2011 [born in 2008]'
+    print 'expected output:' ,'2010:1 2011:1 born:1 2008:1'
+    print 'actual output:' , x
+    print ""
+    x=wikipage('8*2/twenty')
+    print 'input:', '8*2/twenty'
+    print 'expected output:' ,'twenty:1'
+    print 'actual output:' , x
+    print ""
+    x=wikipage('[122] blue-blue*blue[blue]blue')
+    print 'input:', '[122] blue-blue*blue[blue]blue'
+    print 'expected output:' ,'blue:5'
+    print 'actual output:' , x
+    print ""
+    x=wikipage('red blue References redd References hello')
+    print 'input:', "red blue References hello"
+    print 'expected output:' ,'blue:1 References:1 redd:1'
+    print 'actual output:' , x
+    print ""
+     
+def compare_wiki_UT():
+    x=compare_wiki({'blue':1,'red':2,'green':4},{'blue':1 , 'purple':3, 'red':2})
+    print 'input:', "{'blue':1,'red':2'green':4},{'blue':1 , 'purple':3, 'red':2}"
+    print 'actual output:', x
+    print ""
+ 
 def find_next_article_forward_UT():
     philip = w.search('Philip McRae')
     ice = w.search('Ice hockey')
@@ -262,6 +264,5 @@ def get_article_path_UT():
     
     print get_article_path(basil, ice, [])
     print get_article_path(basil, nyr, [])
-    
+
 get_article_path_UT()
-find_next_article_forward_UT()
