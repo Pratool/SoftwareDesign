@@ -9,6 +9,8 @@ import unittest
 
 def in_language(s):
     # TODO: need to write this code!!!
+    if s.count('a') > s.count('b') or s.count('b') > s.count('a'):
+	return False
     return True
 
 class InLanguageTests(unittest.TestCase):

@@ -16,23 +16,23 @@ w = Wikipedia()
 
 def wikipage(the_text):
     """
-    Inputs a wikipedia article as a plain text and output a stripped down
+    Inputs a wikipedia article as a plain text and outputs a stripped down
     version of it that does not inlude the references section, small words
     and non albphet characters. The ouput is a list with each element as an
-    indivudual word from the article.
+    individual word from the article.
     """
-    reverse_text=the_text[::-1] #reveses the text so we find the very last "refences" so we can delete it
+    reverse_text=the_text[::-1] #reverses the text so we find the very last "references" so we can delete it
     if reverse_text.find("secnerefeR") != -1:
         reference_location=reverse_text.index("secnerefeR")
         reverse_text=reverse_text[reference_location+10:len(reverse_text)] #deletes everything after the last references
     text=reverse_text[::-1]
-    flist=re.split('\W+',text) #gets rid of all the non alphaebt or number charcters
+    flist=re.split('\W+',text) #gets rid of all the non-alphabet or number characters
     c=0
     l=len(flist)
-    while c<=l-1: #have to have c as counter and not the initial list length becasue the list changes
+    while c<=l-1: #must have c as counter and not the initial list length becasue the list changes
         if len(flist[c])<=7: #looks for words less than 7 characters.
             del flist[c]
-            l=l-1 # updates the new list legnth
+            l=l-1 # updates the new list length
             c = c-1
         c +=1
     for n in range(len(flist)-1):
@@ -45,11 +45,11 @@ def wikipage(the_text):
     return cnt
 
 def dot_product(v1, v2):
-    """ takes the dot prudct of two lists and results in a scalar value """
+    """ Takes the dot product of two lists and results in a scalar value """
     return sum(map(lambda x: x[0] * x[1], izip(v1, v2)))
 
 def cosine_measure(v1, v2):
-    """calculates cosine similarity equaition and outputs a scalr between 0 and 1"""
+    """ Calculates cosine similarity equation and outputs a scalar between 0 and 1 """
     prod = dot_product(v1, v2)
     len1 = math.sqrt(dot_product(v1, v1))
     len2 = math.sqrt(dot_product(v2, v2))
@@ -57,7 +57,7 @@ def cosine_measure(v1, v2):
 
 def compare_wiki(dic1,dic2):
     """
-    In puts two dictionaies that reprsents two different wiki articles. It uses
+    Inputs two dictionaries that represents two different wiki articles. It uses
     the cosine similarity function to measure how similar they are and ouputs a
     scalar number
     """
