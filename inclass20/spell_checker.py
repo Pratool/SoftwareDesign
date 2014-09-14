@@ -132,7 +132,7 @@ if __name__ == '__main__':
     """
     num_words_to_check = 2000
     make_plot = False
-    if not(make_plot):
+    if make_plot:
         spell_check(1,num_words_to_check)
     else:
         average_time = []

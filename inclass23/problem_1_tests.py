@@ -8,8 +8,7 @@ Created on Thu Apr  3 10:40:40 2014
 import unittest
 
 def sum_squares_even(n):
-    # TODO: need to write this code!!!
-    return True
+    return sum([x**2 for x in range(n+1) if x % 2 == 0])
 
 class SumSquaresEvenTests(unittest.TestCase):
     def test_sum_squares_even_basic(self):
